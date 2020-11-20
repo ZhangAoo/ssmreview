@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+
+<!--    1.关联数据库配置文件-->
+    <context:property-placeholder location="classpath:database.properties"/>
+<!--    2.连接池
+          dbcp:半自动化操作，不能自动连接
+          c3p0：自动化操作（自动化的加载配置文件，并且可以自动设置到对象中！）
+          -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${driverName}"></property>
+        <property name="jdbcUrl" value="${url}"></property>
+        <property name="user" value="${user}"></property>
+        <property name="password" value="${password}"></property>
+        <property name="initialPoolSize" value="5"></property>
+        <property name="maxPoolSize" value="20"></property>
+        <property name="maxAdministrativeTaskTime" value="2"></property>
+        <property name="acquireIncrement" value="5"></property>
+    </bean>
+
+<!--    3.sqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="mapperLocations" value="classpath:all/mapper/*.xml"></property>
+
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+    </bean>
+<!--    配置dao接口扫描包，动态的实现了dao接口可以注入到spring容器中！-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="all.mapper"></property>
+<!--        注入sqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+</beans>
